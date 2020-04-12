@@ -16,7 +16,14 @@ class MainApp extends StatelessWidget {
     );
   }
 }
+final List<Event> _events = <Event>[
+  Event("21","Thu","May","Meeting with boss",true,true),
+  Event("22","Fri","May","Write a notice",false,false),
+  Event("23","Sat","May","Buy groceries",true,true),
+  Event("24","Sun","May","Read documents",true,true),
 
+];
+final GlobalKey<AnimatedListState> _listKey = GlobalKey();
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title}) : super(key: key);
 
@@ -36,15 +43,9 @@ class Event{
   Event(this.dayNo,this.day,this.month,this.label,this.isImportant,this.isComplete);
 }
 class _HomePageState extends State<HomePage> {
-  final List<Event> _events = <Event>[
-    Event("21","Thu","May","Meeting with boss",true,true),
-    Event("22","Fri","May","Write a notice",false,false),
-    Event("23","Sat","May","Buy groceries",true,true),
-    Event("24","Sun","May","Read documents",true,true),
 
-  ];
   bool showAddTaskButton=true;
-  final GlobalKey<AnimatedListState> _listKey = GlobalKey();
+
   Widget _buildTiles(Event event,[int index]){
 
     return ListTile(
@@ -126,71 +127,14 @@ class _HomePageState extends State<HomePage> {
           builder: (BuildContext context) {
             // return object of type Dialog
             return
-              AlertDialog(
-
-                backgroundColor: Color.fromRGBO(64, 75, 96, 10),
-
-                title: new Text("Add new task",style: TextStyle(color:Colors.white),),
-                content:
-
-
-                SingleChildScrollView(
-
-                  child:
-
-                  Column(
-
-
-                    children: <Widget>[
-                      TextField(
-
-                        decoration: InputDecoration(
-
-                          border:OutlineInputBorder(),
-                          hintText:'Label: eg Meeting with boss',
-                          hintStyle: TextStyle(color:Colors.white),
-
-
-                        ),
-
-
-                      ),
-
-
-                      TextField(
-
-                        decoration: InputDecoration(
-
-                            border:OutlineInputBorder(),
-                            hintText:'Label: eg Meeting with boss'
-
-
-                        ),
-
-
-                      ),
+            Container(
+              child :CustomDialog(
 
 
 
-                    ],
-                  ),
-                ),
-                actions: <Widget>[
-                  // usually buttons at the bottom of the dialog
-                  new FlatButton(
-                    child: new Text("Cancel"),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  new FlatButton(
-                    child: new Text("Save"),
-                    onPressed: () {
-                      //code to save
-                    },
-                  ),
-                ],
-              );
+
+
+              ));
           },
         );
       },
@@ -225,8 +169,8 @@ class _HomePageState extends State<HomePage> {
       ),
     );
     return Scaffold(
-      resizeToAvoidBottomInset: false,
-      resizeToAvoidBottomPadding: false,
+    //  resizeToAvoidBottomInset: false,
+      //resizeToAvoidBottomPadding: false,
       backgroundColor: Color.fromRGBO(64, 75, 96, .9),
       appBar: appBar,
       body:
@@ -241,7 +185,7 @@ class _HomePageState extends State<HomePage> {
               showAddTaskButton? Container(
                 child: AnimatedList(
 
-
+key: _listKey,
                   initialItemCount:_events.length,
                   itemBuilder: (BuildContext context, int index,Animation animation) {
                     print(index);
@@ -253,7 +197,15 @@ class _HomePageState extends State<HomePage> {
                         key:ObjectKey(evtObject),
                         onDismissed:(direction) {
                           setState(() {
-                            _events.removeAt(index);
+                           var task= _events.removeAt(index);
+                            _listKey.currentState.removeItem(
+                              index,
+                                  (BuildContext context, Animation<double> animation) {
+                               return  _buildTiles(task);
+
+                              },
+                              duration: Duration(milliseconds: 00),
+                            );
                           });
 
                           Scaffold
@@ -264,6 +216,8 @@ class _HomePageState extends State<HomePage> {
                               // Some code to undo the change.
                               setState(() {
                                 _events.insert(index, evtObject);
+                                _listKey.currentState
+                                    .insertItem(index, duration: Duration(milliseconds: 500));
                               });
 
                             },
@@ -301,6 +255,121 @@ class _HomePageState extends State<HomePage> {
 
       floatingActionButton:showAddTaskButton?addTaskButton:null ,
       bottomNavigationBar: navBar,
+    );
+  }
+}
+class CustomDialog extends StatefulWidget{
+  @override
+  CustomDialogState createState() => CustomDialogState();
+}
+class CustomDialogState extends State<CustomDialog> {
+
+bool isImportant=false;
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+
+      elevation: 0.4,
+      backgroundColor: Colors.transparent,
+      child: Container(
+        padding: EdgeInsets.only(
+          top: 16,
+          bottom: 16,
+          left: 16,
+          right: 16,
+        ),
+        width: 1200,
+        height: 300,
+        decoration: new BoxDecoration(
+          color: Color.fromRGBO(64, 75, 96, 10),
+          shape: BoxShape.rectangle,
+          //borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 10.0,
+              offset: const Offset(0.0, 10.0),
+            ),
+          ],
+        ),
+        child:
+        SingleChildScrollView(
+          child:
+        Column(
+          mainAxisSize: MainAxisSize.min, // To make the card compact
+          children: <Widget>[
+           Row(
+            children:[Icon(Icons.add,size: 35,color: Colors.white),
+            Text("Add new task",style: TextStyle(color:Colors.white,fontWeight: FontWeight.bold,fontSize: 18),),]),
+            SizedBox(height: 16.0),
+
+
+
+
+              Column(
+
+
+                children: <Widget>[
+                  Container(
+                      width:600.0,
+                      child:
+                      TextField(
+
+                        decoration: InputDecoration(
+
+                          border:OutlineInputBorder(),
+                          hintText:'Label: eg Buy groceries',
+                          hintStyle: TextStyle(color:Colors.white),
+
+
+                        ),
+
+
+                      )),
+Row(
+children:[
+  Text("Important",style:TextStyle(color:Colors.white)),
+                 Checkbox(
+
+                   value:isImportant,
+                   onChanged: (bool state){
+                     setState(() {
+isImportant=state;
+                     });
+                   },
+                 ),],),
+
+                  SizedBox(height: 70.0),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children:[ new FlatButton(
+                      child: new Text("Cancel"),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                      new FlatButton(
+                        child: new Text("Save"),
+                        onPressed: () {
+                          //code to save
+                          int index=_events.length;
+                          _events.insert(0,new Event("31","Thur","Mar","Buy groceries",isImportant,false));
+                          _listKey.currentState
+                              .insertItem(0, duration: Duration(milliseconds: 500));
+                          Navigator.of(context).pop();
+                        },
+                      ),],
+                  ),
+
+                ],
+              ),
+
+
+          ],
+        ),
+      ),
+      ),
     );
   }
 }
