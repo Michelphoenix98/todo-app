@@ -24,6 +24,7 @@ final List<Event> _events = <Event>[
 
 ];
 final GlobalKey<AnimatedListState> _listKey = GlobalKey();
+
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title}) : super(key: key);
 
@@ -93,6 +94,7 @@ class _HomePageState extends State<HomePage> {
   }
   @override
   Widget build(BuildContext context) {
+
     final taskViewButton=IconButton(
       icon: Icon(Icons.pie_chart, color: !showAddTaskButton?Colors.indigo:Colors.white),
       onPressed: () {
@@ -263,10 +265,81 @@ class CustomDialog extends StatefulWidget{
   CustomDialogState createState() => CustomDialogState();
 }
 class CustomDialogState extends State<CustomDialog> {
-
+  DateTime _date;
+TextEditingController _labelController=new TextEditingController();
 bool isImportant=false;
   @override
+  String _getDayName(int day){
+    String name;
+    switch(day){
+      case 1:
+         name="Mon";
+         break;
+      case 2:
+        name="Tue";
+        break;
+      case 3:
+        name="Wed";
+        break;
+      case 5:
+        name="Thur";
+        break;
+      case 7:
+        name="Fri";
+        break;
+      case 8:
+        name="Sat";
+        break;
+      case 9:
+        name="Sun";
+        break;
+    }
+    return name;
+  }
+  String _getMonthName(int month){
+    String name;
+    switch(month){
+      case 1:
+        name="Jan";
+        break;
+      case 2:
+        name="Feb";
+        break;
+      case 3:
+        name="Mar";
+        break;
+      case 5:
+        name="Apr";
+        break;
+      case 7:
+        name="May";
+        break;
+      case 8:
+        name="Jun";
+        break;
+      case 9:
+        name="Jul";
+        break;
+      case 10:
+        name="Aug";
+        break;
+      case 11:
+        name="Sep";
+        break;
+      case 12:
+        name="Oct";
+        break;
+      case 13:
+        name="Nov";
+        break;
+      case 14:
+        name="Dec";
+        break;
+    }
+    return name;
+  }
   Widget build(BuildContext context) {
+    String dropdownValue = '1';
     return Dialog(
 
       elevation: 0.4,
@@ -310,14 +383,20 @@ bool isImportant=false;
 
 
                 children: <Widget>[
+
+
                   Container(
                       width:600.0,
                       child:
                       TextField(
-
+                        style: new TextStyle(color: Colors.white),
+                        cursorColor: Colors.white,
+controller: _labelController,
                         decoration: InputDecoration(
 
-                          border:OutlineInputBorder(),
+                          border:OutlineInputBorder(
+
+                          ),
                           hintText:'Label: eg Buy groceries',
                           hintStyle: TextStyle(color:Colors.white),
 
@@ -325,7 +404,9 @@ bool isImportant=false;
                         ),
 
 
-                      )),
+                      )
+                  )
+                  ,
 Row(
 children:[
   Text("Important",style:TextStyle(color:Colors.white)),
@@ -338,23 +419,46 @@ isImportant=state;
                      });
                    },
                  ),],),
+                  Row(
+                    children: <Widget>[
+                      Container(
+                        padding: EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                         // color: Theme.of(context).accentColor,
+                          border: Border.all(
+color:Colors.black54,
+                          )
+                        ),
+                        margin: EdgeInsets.all(10),
+                        child:
+                            Column(
+                              children:[
+                      Text(_date==null?"13-11-1998":"${_date.day}"+_getMonthName(_date.month)+"${_date.year}",style: TextStyle(color:Colors.white),),
+                      Text(_date==null?"Thurday":_getDayName(_date.weekday),style: TextStyle(color:Colors.white),),
+                      ],),),
 
-                  SizedBox(height: 70.0),
+
+
+
+                    ],
+                  ),
+
+
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children:[ new FlatButton(
-                      child: new Text("Cancel"),
+                      child: new Text("Cancel",style: TextStyle(color:Theme.of(context).accentColor),),
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
                     ),
                       new FlatButton(
-                        child: new Text("Save"),
+                        child: new Text("Save",style: TextStyle(color:Theme.of(context).accentColor),),
                         onPressed: () {
                           //code to save
                           int index=_events.length;
-                          _events.insert(0,new Event("31","Thur","Mar","Buy groceries",isImportant,false));
+                          _events.insert(0,new Event("31","Thur","Mar",_labelController.text,isImportant,false));
                           _listKey.currentState
                               .insertItem(0, duration: Duration(milliseconds: 500));
                           Navigator.of(context).pop();
